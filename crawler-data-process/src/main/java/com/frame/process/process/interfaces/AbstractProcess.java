@@ -3,18 +3,22 @@ package com.frame.process.process.interfaces;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
 
 import org.apache.commons.lang3.ArrayUtils;
 
 import com.frame.process.annotation.ExportTitle;
 import com.frame.process.core.Service;
 import com.frame.process.utils.DateTimeUtils;
+import com.frame.process.utils.FileUtils;
+import com.frame.process.utils.ThreadPoolUtils;
 import com.frame.process.utils.excel.ExcelIO;
 
 /**
@@ -32,6 +36,26 @@ public abstract class AbstractProcess extends CommonProcess implements ProcessIn
 	 */
 	public abstract String saveFile(String fileName, Queue<String> datas) throws Exception;
 	
+	@Override
+	public void filesToDatasConverterThreadOption(String filePath) {
+		// 获取解压文件内部具体文件
+		List<String> childFilePaths = new ArrayList<>();
+		FileUtils.getAllFilePath(filePath, childFilePaths);
+		/*========================== 线程执行操作 ==============================*/
+		// 创建线程池
+		ThreadPoolExecutor threadPoolExecutor = ThreadPoolUtils.getThreadPoolInstance();
+		
+		for (String childFilePath : childFilePaths) {
+			threadPoolExecutor.execute(new Runnable() {
+				@Override
+				public void run() {
+					filesToDatasConverter(childFilePath);
+				}
+			});
+		}
+		/*========================== 线程执行操作 ==============================*/
+	}
+
 	/**
 	 * 反射获取所需导出数据库数据, 分表
 	 * @param tableType 表类别

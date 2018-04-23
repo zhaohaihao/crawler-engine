@@ -38,8 +38,9 @@ public class MyAppRunner implements CommandLineRunner {
 		List<String> typeNames = CommonProcess.getInitialCategoriesKeys();
 		
 		String typeName = GobalConstant.ExcelTableAlias.TIE_BA_CONTENT;
-		excelProcess.datasToFilesConverter(typeName);
-//		excelProcess.filesToDatasConverter(null);
+//		excelProcess.datasToFilesConverter(typeName);
+		String filePath = "C:/Users/Administrator/Desktop/zip/File_20180423173003328292.zip";
+		excelProcess.filesToDatasConverterThreadOption(filePath);
 	}
 	
 }

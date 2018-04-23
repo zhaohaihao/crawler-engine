@@ -49,7 +49,7 @@ public class ZipUtils {
 	 * @param srcZipPath 压缩文件路径
 	 * @return
 	 */
-	public static boolean unCompress(String srcZipPath) {
+	public static String unCompress(String srcZipPath) {
 		return unCompress(srcZipPath, null);
 	}
 	
@@ -63,14 +63,15 @@ public class ZipUtils {
 		if (ArrayUtils.isEmpty(srcFilePaths)) {
 			return false;
 		}
+		String targetFilePath = dstZipPath;
 		if (dstZipPath == null) {
 			dstZipPath = srcFilePaths[0];
+			targetFilePath = FileUtils.getFatherFilePath(dstZipPath);
 		}
 		
 		ZipOutputStream out = null;
 		try {
 			// 目标文件
-			String targetFilePath = FileUtils.getFatherFilePath(dstZipPath);
 			File targetFile = new File(targetFilePath);
 			// 如果目标文件路径不存在, 则新创建
 			if (!targetFile.exists()) {
@@ -91,9 +92,10 @@ public class ZipUtils {
 				
 				createCompressedFile(out, srcFile, targetName);
 			}
-			
+			return true;
 		} catch (Exception e) {
 			e.printStackTrace();
+			return false;
 		} finally {
 			if (out != null) {
 				try {
@@ -103,14 +105,13 @@ public class ZipUtils {
 				}
 			}
 		}
-		
-		
-		return false;
 	}
 	
 	public static void main(String[] args) {
-		String[] file = {"C:/Users/Administrator/Desktop/test/帖子详情内容表_e3fc17b980984c758804ea71faf087cd.xlsx"};
-		compress(file);
+		String[] file = {"C:/Users/Administrator/Desktop/excel/TieBaContent_4ea476ce30a847bdaae64c5f42f41b3d.xlsx"};
+		// 压缩
+		compress("C:/Users/Administrator/Desktop/zip", file);
+//		unCompress("C:/Users/Administrator/Desktop/zip/File_20180423172325187411.zip");
 	}
 	
 	/**
@@ -119,9 +120,9 @@ public class ZipUtils {
 	 * @param dstZipPath 解压文件指定目录
 	 * @return
 	 */
-	public static boolean unCompress(String srcZipPath, String dstZipPath) {
+	public static String unCompress(String srcZipPath, String dstZipPath) {
 		if (srcZipPath == null) {
-			return false;
+			return null;
 		}
 		if (dstZipPath == null) {
 			dstZipPath = FileUtils.removeSuffix(srcZipPath);
@@ -185,10 +186,10 @@ public class ZipUtils {
 					is.close();
 				}
 			}
-			return true;
+			return dstZipPath;
 		} catch (Exception e) {
 			e.printStackTrace();
-			return false;
+			return null;
 		} finally {
 			if (zipFile != null) {
 				try {

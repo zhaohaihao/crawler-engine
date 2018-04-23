@@ -9,12 +9,19 @@ public interface ProcessInter {
 	/**
 	 * 数据到文件转换器
 	 * @param tableType 表类别
+	 * @return
 	 */
-	void datasToFilesConverter(String tableType);
+	String datasToFilesConverter(String tableType);
 	
 	/**
 	 * 文件到数据转换器
-	 * @param filePaths 待解析文件路径列表
+	 * @param filePath 待解析Excel文件路径
 	 */
 	void filesToDatasConverter(String filePath);
+	
+	/**
+	 * 文件到数据转换器(开多线程)
+	 * @param filePath 文件夹路径
+	 */
+	void filesToDatasConverterThreadOption(String filePath);
 }

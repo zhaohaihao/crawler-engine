@@ -35,4 +35,5 @@ mapper:
     
 commonProcess: 
     modelPackage: com.frame.process.model
-    fileLocation: C:/Users/Administrator/Desktop/test
+    fileLocation: C:/Users/Administrator/Desktop/excel
+    zipLocation: C:/Users/Administrator/Desktop/zip

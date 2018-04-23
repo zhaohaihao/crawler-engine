@@ -13,7 +13,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
 
-import com.frame.process.constants.GobalConstant.*;
+import com.frame.process.constants.GobalConstant.FileType;
 import com.frame.process.process.interfaces.AbstractProcess;
 /**
  * 
@@ -34,19 +34,19 @@ public class ExcelProcess extends AbstractProcess {
 	}
 
 	@Override
-	public void datasToFilesConverter(String tableType) {
+	public String datasToFilesConverter(String tableType) {
 		String fileName = getFileName(tableType);
 		try {
-			saveFile(fileName, getDBDatas(tableType));
+			return saveFile(fileName, getDBDatas(tableType));
 		} catch (Exception e) {
 			logger.info("=== 当前数据文件: " + fileName + " 打包发生异常 ===");
 			e.printStackTrace();
+			return null;
 		}
 	}
 
 	@Override
 	public void filesToDatasConverter(String filePath) {
-		filePath = "C:/Users/Administrator/Desktop/test/TieBaContent_e3fc17b980984c758804ea71faf087cd.xlsx";
 		String tableType = getTableType(filePath);
 		try {
 			List fileDatas = getFileDatas(filePath, tableType);
@@ -89,10 +89,12 @@ public class ExcelProcess extends AbstractProcess {
         }
         // 输出Excel文件
         String path = fileName + suffix;
-        OutputStream outputFile = new FileOutputStream(new File(fileLocation + "/" + path));
+        // 输出Excel全路径
+        String allPath = fileLocation + "/" + path;
+        OutputStream outputFile = new FileOutputStream(new File(allPath));
         workbook.write(outputFile);
         outputFile.close();
-		return path;
+		return allPath;
 	}
 	
 	// Excel 版本枚举
