@@ -100,7 +100,7 @@ public class ExcelProcess extends AbstractProcess {
 	// Excel 版本枚举
 	public enum ExcelVersion {
 		
-		XLS(FileType.XLSX, new HSSFWorkbook()),	// 03及03以前更低版本
+		XLS(FileType.XLS, new HSSFWorkbook()),	// 03及03以前更低版本
 		XLSX(FileType.XLSX, new XSSFWorkbook());	// 07及07以后更高版本
 		
 		// 后缀
