@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.frame.crawler.mapper.SearchKeywordMapper">
+
+	<select id="selectMatchConditionKeyWord" parameterType="java.lang.Integer" resultType="SearchKeyword">
+		SELECT *
+		FROM search_keyword
+		WHERE DATEDIFF(NOW(), last_time) >= #{timeInterval} * count
+	</select>
+</mapper>
