@@ -5,6 +5,9 @@ package com.frame.process.constants;
  */
 public interface GobalConstant {
 	
+	/** 加密标志 **/
+	String ENCRYPT_FLAG = "Encrypt_";
+	
 	/** 导出Excel表别名(用于实体类) **/
 	interface ExcelTableAlias {
 		
@@ -20,7 +23,7 @@ public interface GobalConstant {
 	/** 查询条件 **/
 	interface QueryCondition {
 		// 查询限制条数
-		Integer QUERY_LIMIT = 50000;
+		Integer QUERY_LIMIT = 10000;
 	}
 	
 	/** 文件目录 **/

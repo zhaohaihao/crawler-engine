@@ -10,6 +10,7 @@ import javax.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
@@ -24,7 +25,7 @@ import com.frame.process.utils.UUIDUtils;
 @Component
 public class CommonProcess {
 	
-	public Logger logger = LoggerFactory.getLogger(getClass());
+	public static Logger logger = LoggerFactory.getLogger(CommonProcess.class);
 	
 	/** 换行符 **/
 	protected final static String LINE_BREAK = "\n";
@@ -36,9 +37,17 @@ public class CommonProcess {
 	@Value("${commonProcess.modelPackage}")
 	private String modelPackage;
 	
-	// 文件打包存放、解析读取的位置
+	// 文件打包存放位置
 	@Value("${commonProcess.fileLocation}")
 	protected String fileLocation;
+	
+	// 文件解析读取位置
+	@Value("${commonProcess.zipLocation}")
+	protected String zipLocation;
+	
+	// 文件加解密密码
+	@Value("${file.secretKey}")
+	protected String secretKey;
 	
 	// 初始类别表 <导出Excel表别名, 实体类>
 	protected static Map<String, Class<?>> initialCategoriesMap = new HashMap<>();

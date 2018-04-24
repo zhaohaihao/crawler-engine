@@ -40,7 +40,7 @@ public class ZipUtils {
 	 * @param srcFilePaths 所需压缩文件路径
 	 * @return
 	 */
-	public static boolean compress(String... srcFilePaths) {
+	public static String compress(String... srcFilePaths) {
 		return compress(null, srcFilePaths);
 	}
 	
@@ -59,9 +59,9 @@ public class ZipUtils {
 	 * @param srcFilePaths 所需压缩文件路径
 	 * @return
 	 */
-	public static boolean compress(String dstZipPath, String... srcFilePaths) {
+	public static String compress(String dstZipPath, String... srcFilePaths) {
 		if (ArrayUtils.isEmpty(srcFilePaths)) {
-			return false;
+			return null;
 		}
 		String targetFilePath = dstZipPath;
 		if (dstZipPath == null) {
@@ -88,14 +88,18 @@ public class ZipUtils {
 				// 源文件
 				File srcFile = new File(srcFilePath);
 				String targetName = srcFile.getName();
-				System.out.println(targetName);
+//				System.out.println(targetName);
 				
 				createCompressedFile(out, srcFile, targetName);
+				// 删除压缩好的文件
+				if (srcFile.exists()) {
+					FileUtils.deleteFolder(srcFilePath);
+				}
 			}
-			return true;
+			return targetFilePath;
 		} catch (Exception e) {
 			e.printStackTrace();
-			return false;
+			return null;
 		} finally {
 			if (out != null) {
 				try {
@@ -108,9 +112,9 @@ public class ZipUtils {
 	}
 	
 	public static void main(String[] args) {
-		String[] file = {"C:/Users/Administrator/Desktop/excel/TieBaContent_4ea476ce30a847bdaae64c5f42f41b3d.xlsx"};
+//		String[] file = {"C:/Users/Administrator/Desktop/excel/TieBaContent_4ea476ce30a847bdaae64c5f42f41b3d.xlsx"};
 		// 压缩
-		compress("C:/Users/Administrator/Desktop/zip", file);
+//		compress("C:/Users/Administrator/Desktop/zip", file);
 //		unCompress("C:/Users/Administrator/Desktop/zip/File_20180423172325187411.zip");
 	}
 	

@@ -1,5 +1,6 @@
 package com.frame.process.process.interfaces;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.lang.reflect.Field;
@@ -13,12 +14,17 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 
 import org.apache.commons.lang3.ArrayUtils;
+import org.springframework.util.CollectionUtils;
 
 import com.frame.process.annotation.ExportTitle;
+import com.frame.process.constants.GobalConstant;
 import com.frame.process.core.Service;
+import com.frame.process.subscribe.FileSubscriber;
 import com.frame.process.utils.DateTimeUtils;
 import com.frame.process.utils.FileUtils;
 import com.frame.process.utils.ThreadPoolUtils;
+import com.frame.process.utils.Zip4jUtils;
+import com.frame.process.utils.ZipUtils;
 import com.frame.process.utils.excel.ExcelIO;
 
 /**
@@ -37,25 +43,93 @@ public abstract class AbstractProcess extends CommonProcess implements ProcessIn
 	public abstract String saveFile(String fileName, Queue<String> datas) throws Exception;
 	
 	@Override
-	public void filesToDatasConverterThreadOption(String filePath) {
-		// 获取解压文件内部具体文件
-		List<String> childFilePaths = new ArrayList<>();
-		FileUtils.getAllFilePath(filePath, childFilePaths);
+	public void datasToFilesConverterThreadOption(List<String> tableTypes) {
 		/*========================== 线程执行操作 ==============================*/
 		// 创建线程池
 		ThreadPoolExecutor threadPoolExecutor = ThreadPoolUtils.getThreadPoolInstance();
-		
-		for (String childFilePath : childFilePaths) {
+		for (String tableType : tableTypes) {
 			threadPoolExecutor.execute(new Runnable() {
 				@Override
 				public void run() {
-					filesToDatasConverter(childFilePath);
+					datasToFilesConverter(tableType);
 				}
 			});
 		}
 		/*========================== 线程执行操作 ==============================*/
 	}
 
+	@Override
+	public void filesToDatasConverterThreadOption(String filePath) {
+		/*
+		 * 说明：在该方法被调用之前 com.frame.process.aop.FileAspect.decryptFile(..) 已经做了处理,
+		 *       处理返回传入的结果为解压后的文件夹路径
+		 */
+		try {
+			// 获取解压文件内部具体文件
+			List<String> childFilePaths = new ArrayList<>();
+			FileUtils.getAllFilePath(filePath, childFilePaths);
+			/*========================== 线程执行操作 ==============================*/
+			// 创建线程池
+			ThreadPoolExecutor threadPoolExecutor = ThreadPoolUtils.getThreadPoolInstance();
+			
+			for (String childFilePath : childFilePaths) {
+				threadPoolExecutor.execute(new Runnable() {
+					@Override
+					public void run() {
+						filesToDatasConverter(childFilePath);
+					}
+				});
+			}
+			
+			// 等待两秒执行删除操作
+			Thread.sleep(2000);
+			
+			// 文件执行完删除文件
+			File file = new File(filePath);
+			if (file.exists()) {
+				System.out.println("=== 当前删除文件: " + filePath + " ===");
+				FileUtils.deleteFolder(filePath);
+			}
+			/*========================== 线程执行操作 ==============================*/
+		} catch (Exception e) {
+			logger.info("=== 文件转数据的时候发生异常, 当前文件为: {} ===", filePath);
+			e.printStackTrace();
+		}
+	}
+	
+	@Override
+	public void notifyPackFile(String filePath) {
+		FileSubscriber.getInstance().countFileNum(this, filePath);
+	}
+	
+	@Override
+	public void packFileWithFixedNum(List<String> filePaths) {
+		/*
+		 * TODO: 订阅器 com.frame.process.subscribe.FileSubscriber.countFileNum(..)
+		 *       调用该方法时, 切面aop无法织入, 采用这种方式解决
+		 */
+		if (CollectionUtils.isEmpty(filePaths)) {
+			return;
+		}
+		int size = filePaths.size();
+		String[] filePathsArray = new String[size];
+		for (int i = 0; i < size; i++) {
+			filePathsArray[i] = filePaths.get(i);
+			logger.info("=== 当前执行打包操作的filePath: " + filePathsArray[i] + " ===");
+		}
+        // 压缩文件
+     	String zipFilePath = ZipUtils.compress(zipLocation, filePathsArray);
+     	if (zipFilePath == null) {
+     		return;
+     	}
+     	int pos = zipFilePath.lastIndexOf("/");
+     	if (pos != -1) {
+     		String newZipFilePath = zipFilePath.substring(0, pos + 1) + GobalConstant.ENCRYPT_FLAG + zipFilePath.substring(pos + 1);
+     		Zip4jUtils.encrypt(zipFilePath, newZipFilePath, secretKey);
+     		FileUtils.deleteFolder(zipFilePath);
+     	}
+	}
+	
 	/**
 	 * 反射获取所需导出数据库数据, 分表
 	 * @param tableType 表类别
@@ -74,13 +148,14 @@ public abstract class AbstractProcess extends CommonProcess implements ProcessIn
 		// 获取对应的实体类
 		Class pojoClazz = initialCategoriesMap.get(tableType);
 		// 获取的数据
-		List<?> findDatas = serviceBean.findDatasByLimit(0, 50000);
+		List<?> findDatas = serviceBean.findDatasByLimit(0, GobalConstant.QueryCondition.QUERY_LIMIT);
 
 		// 数据信息
 		Field[] clazzFields = pojoClazz.getDeclaredFields();
 		String[] nameArray = saveHeaders(datas, clazzFields);
 		saveBodys(datas, findDatas, clazzFields, nameArray);
-		return datas;
+		// 只有表头无具体数据时候返回 null
+		return datas.size() == nameArray.length ? null : datas;
 	}
 	
 	/**
@@ -114,6 +189,12 @@ public abstract class AbstractProcess extends CommonProcess implements ProcessIn
 			// 如果当前无该服务, 跳过后续执行
 			return;
 		}
+		/*
+		 * TODO: 这里做分批处理, 防止以下异常:
+		 * Caused by: com.mysql.jdbc.PacketTooBigException: Packet for query is
+		 * too large (5423879 > 4194304). You can change this value on the
+		 * server by setting the max_allowed_packet' variable.
+		 */
 		// 保存数据
 		serviceBean.save(fileDatas);
 	}

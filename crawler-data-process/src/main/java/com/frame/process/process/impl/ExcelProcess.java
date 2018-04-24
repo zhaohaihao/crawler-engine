@@ -5,6 +5,7 @@ import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.util.List;
 import java.util.Queue;
+import java.util.concurrent.ThreadPoolExecutor;
 
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Row;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import com.frame.process.constants.GobalConstant.FileType;
 import com.frame.process.process.interfaces.AbstractProcess;
+import com.frame.process.utils.ThreadPoolUtils;
 /**
  * 
  * Created by zhh on 2018/04/20.
@@ -36,13 +38,29 @@ public class ExcelProcess extends AbstractProcess {
 	@Override
 	public String datasToFilesConverter(String tableType) {
 		String fileName = getFileName(tableType);
+		String filePath = null;
 		try {
-			return saveFile(fileName, getDBDatas(tableType));
+			Queue<String> dbDatas = getDBDatas(tableType);
+			if (dbDatas != null) {
+				filePath = saveFile(fileName, dbDatas);
+			}
 		} catch (Exception e) {
 			logger.info("=== 当前数据文件: " + fileName + " 打包发生异常 ===");
 			e.printStackTrace();
-			return null;
+			filePath = null;
 		}
+		if (filePath != null) {
+			// 开线程通知打包方法
+			ThreadPoolExecutor threadPoolExecutor = ThreadPoolUtils.getThreadPoolInstance();
+			final String notifyFilePath = filePath;
+			threadPoolExecutor.execute(new Runnable() {
+				@Override
+				public void run() {
+					notifyPackFile(notifyFilePath);
+				}
+			});
+		}
+		return filePath;
 	}
 
 	@Override
@@ -63,10 +81,10 @@ public class ExcelProcess extends AbstractProcess {
 		Workbook workbook;
 		switch (suffix) {
 		case FileType.XLS:
-			workbook = ExcelVersion.XLS.getWorkbook();
+			workbook = new HSSFWorkbook();
 			break;
 		case FileType.XLSX:
-			workbook = ExcelVersion.XLSX.getWorkbook();
+			workbook = new XSSFWorkbook();
 			break;
 		default:
 			// TODO: 文件类型异常
@@ -94,39 +112,7 @@ public class ExcelProcess extends AbstractProcess {
         OutputStream outputFile = new FileOutputStream(new File(allPath));
         workbook.write(outputFile);
         outputFile.close();
+        workbook.close();
 		return allPath;
-	}
-	
-	// Excel 版本枚举
-	public enum ExcelVersion {
-		
-		XLS(FileType.XLS, new HSSFWorkbook()),	// 03及03以前更低版本
-		XLSX(FileType.XLSX, new XSSFWorkbook());	// 07及07以后更高版本
-		
-		// 后缀
-		private String suffix;
-		// 工作簿类型
-		private Workbook workbook;
-
-		private ExcelVersion(String suffix, Workbook workbook) {
-			this.suffix = suffix;
-			this.workbook = workbook;
-		}
-
-		public String getSuffix() {
-			return suffix;
-		}
-
-		public void setSuffix(String suffix) {
-			this.suffix = suffix;
-		}
-
-		public Workbook getWorkbook() {
-			return workbook;
-		}
-
-		public void setWorkbook(Workbook workbook) {
-			this.workbook = workbook;
-		}
 	}
 }

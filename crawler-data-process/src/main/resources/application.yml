@@ -37,3 +37,6 @@ commonProcess:
     modelPackage: com.frame.process.model
     fileLocation: C:/Users/Administrator/Desktop/excel
     zipLocation: C:/Users/Administrator/Desktop/zip
+    
+file:
+    secretKey: pamo
