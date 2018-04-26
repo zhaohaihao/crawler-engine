@@ -5,6 +5,7 @@ import javax.annotation.PostConstruct;
 import org.jsoup.nodes.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import com.frame.crawler.constants.GobalConstant;
 import com.frame.crawler.service.NetworkProxyInfoService;
@@ -56,6 +57,19 @@ public abstract class AbstractAnalysisProcess extends RequestAnalysisProcess imp
 	 * @throws Exception
 	 */
 	protected abstract int getAnalysisPageNum(Document pageDoc) throws Exception;
+	
+	/**
+	 * 将内容中的emoji字符去掉
+	 * @param str
+	 * @return
+	 */
+	protected String removeNonBmpUnicode(String str) {
+		if (StringUtils.isEmpty(str)) {
+			return "";
+		}
+		str = str.replaceAll("[^\\u0000-\\uFFFF]", "");
+		return str;
+	}
 	
 	@Override
 	public void executeGrab(String url) throws Exception {

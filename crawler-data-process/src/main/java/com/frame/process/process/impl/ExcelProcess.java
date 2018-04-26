@@ -13,6 +13,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.frame.process.constants.GobalConstant.FileType;
 import com.frame.process.process.interfaces.AbstractProcess;
@@ -34,33 +35,34 @@ public class ExcelProcess extends AbstractProcess {
 	public void setSuffix(String suffix) {
 		this.suffix = suffix;
 	}
-
+	
+	@Transactional
 	@Override
 	public String datasToFilesConverter(String tableType) {
-		String fileName = getFileName(tableType);
 		String filePath = null;
+		String fileName = getFileName(tableType);
 		try {
 			Queue<String> dbDatas = getDBDatas(tableType);
 			if (dbDatas != null) {
 				filePath = saveFile(fileName, dbDatas);
 			}
+			if (filePath != null) {
+				// 开线程通知打包方法
+				ThreadPoolExecutor threadPoolExecutor = ThreadPoolUtils.getThreadPoolInstance();
+				final String notifyFilePath = filePath;
+				threadPoolExecutor.execute(new Runnable() {
+					@Override
+					public void run() {
+						notifyPackFile(notifyFilePath);
+					}
+				});
+			}
+			return filePath;
 		} catch (Exception e) {
-			logger.info("=== 当前数据文件: " + fileName + " 打包发生异常 ===");
 			e.printStackTrace();
-			filePath = null;
+			logger.info("=== 当前数据文件: " + fileName + " 打包发生异常 ===");
 		}
-		if (filePath != null) {
-			// 开线程通知打包方法
-			ThreadPoolExecutor threadPoolExecutor = ThreadPoolUtils.getThreadPoolInstance();
-			final String notifyFilePath = filePath;
-			threadPoolExecutor.execute(new Runnable() {
-				@Override
-				public void run() {
-					notifyPackFile(notifyFilePath);
-				}
-			});
-		}
-		return filePath;
+		return null;
 	}
 
 	@Override

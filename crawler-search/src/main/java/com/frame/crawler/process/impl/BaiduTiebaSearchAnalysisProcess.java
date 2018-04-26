@@ -140,6 +140,7 @@ public class BaiduTiebaSearchAnalysisProcess extends AbstractAnalysisProcess {
 				Elements titleAs = titleElement.getElementsByTag("a");
 				titleUrl = titleAs.attr("href");
 				title = titleAs.text();
+				title = removeNonBmpUnicode(title);
 				// 获取发帖用户
 				postUser = content.getElementsByClass("frs-author-name-wrap").text();
 				// 获取最后一次回帖用户

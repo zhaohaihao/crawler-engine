@@ -16,7 +16,8 @@ public interface BaiduTiebaImageMapper extends MyMapper<BaiduTiebaImage> {
 	 * 筛选指定条数贴吧图片信息
 	 * @param startPos 起始位
 	 * @param limit 限定数目
+	 * @param flag 已读标志
 	 * @return
 	 */
-	List<BaiduTiebaImage> selectBaiduTiebaImageByLimit(@Param("startPos") Integer startPos, @Param("limit") Integer limit);
+	List<BaiduTiebaImage> selectBaiduTiebaImageByLimit(@Param("startPos") Integer startPos, @Param("limit") Integer limit, @Param("flag") Integer flag);
 }

@@ -38,11 +38,11 @@ public class FileSubscriber {
 	 * 统计文件是否达到包符合数量
 	 * @param filePath
 	 */
-	public synchronized void countFileNum(ProcessInter processInter, String filePath) {
+	public synchronized void countFileNum(ProcessInter processInter, String filePath, Integer zipMax) {
 		if (filePath == null) {
 			return;
 		}
-		if (count < 5) {
+		if (count < zipMax) {
 			// 如果数目小于当前打包数量范围
 			count = count + 1;
 			filePaths.add(filePath);

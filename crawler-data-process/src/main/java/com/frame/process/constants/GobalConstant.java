@@ -20,12 +20,6 @@ public interface GobalConstant {
 		String TIE_BA_IMAGE = "TieBaImage";
 	}
 	
-	/** 查询条件 **/
-	interface QueryCondition {
-		// 查询限制条数
-		Integer QUERY_LIMIT = 10000;
-	}
-	
 	/** 文件目录 **/
 	interface FilePath {
 		// 文件目录

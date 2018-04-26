@@ -3,8 +3,18 @@
 
 <mapper namespace="com.frame.process.mapper.BaiduTiebaContentMapper">
 	
-	<select id="selectBaiduTiebaContentByLimit" parameterType="java.lang.Integer" resultType="BaiduTiebaContent">
+	<select id="selectBaiduTiebaContentByLimit" resultType="BaiduTiebaContent">
 		SELECT * FROM baidu_tieba_content
+		WHERE flag = #{flag}
 		LIMIT #{startPos}, #{limit}
 	</select>
+	
+	<update id="updateBatch">
+		UPDATE baidu_tieba_content
+		SET flag = #{flag}
+		WHERE id IN
+		<foreach collection="datas" item="data" index="index" separator="," open="(" close=")">
+		 #{data.id}
+		</foreach>
+	</update>
 </mapper>

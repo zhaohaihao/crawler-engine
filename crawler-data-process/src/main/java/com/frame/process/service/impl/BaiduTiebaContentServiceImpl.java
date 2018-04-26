@@ -24,8 +24,13 @@ public class BaiduTiebaContentServiceImpl extends AbstractService<BaiduTiebaCont
 	private BaiduTiebaContentMapper baiduTiebaContentMapper;
 	
 	@Override
-	public List<BaiduTiebaContent> findDatasByLimit(Integer startPos, Integer limit) {
-		return baiduTiebaContentMapper.selectBaiduTiebaContentByLimit(startPos, limit);
+	public List<BaiduTiebaContent> findDatasByLimit(Integer startPos, Integer limit, Integer flag) {
+		return baiduTiebaContentMapper.selectBaiduTiebaContentByLimit(startPos, limit, flag);
+	}
+
+	@Override
+	public void updateBatch(List<BaiduTiebaContent> models, Integer flag) {
+		baiduTiebaContentMapper.updateBatch(models, flag);
 	}
 
 }

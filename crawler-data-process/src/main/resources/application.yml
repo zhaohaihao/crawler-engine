@@ -1,11 +1,11 @@
 spring:
   datasource:
     type: com.alibaba.druid.pool.DruidDataSource
-#    url: jdbc:mysql://10.0.0.8:3306/crawler?useUnicode=true&characterEncoding=utf-8&useSSL=true
-    url: jdbc:mysql://localhost:3306/crawler?useUnicode=true&characterEncoding=utf-8&useSSL=true
+    url: jdbc:mysql://10.0.0.8:3306/crawler?useUnicode=true&characterEncoding=utf-8&useSSL=true
+#    url: jdbc:mysql://localhost:3306/crawler?useUnicode=true&characterEncoding=utf-8&useSSL=true
     username: root
-#    password: pamo
-    password: root
+    password: pamo
+#    password: root
     driver-class-name: com.mysql.jdbc.Driver
     max-active: 20
     max-idle: 50
@@ -35,8 +35,20 @@ mapper:
     
 commonProcess: 
     modelPackage: com.frame.process.model
+    # 数据生成文件目标存放目录
     fileLocation: C:/Users/Administrator/Desktop/excel
+    # 文件生成压缩包存放目录
     zipLocation: C:/Users/Administrator/Desktop/zip
+    # 单个Excel文件数据上限
+    dataLimit: 100
+    # 单个压缩包文件上限
+    zipMax: 3
     
 file:
     secretKey: pamo
+    
+server:
+    # 服务发送者, 生成数据文件方: 打开(true)、关闭(flase)
+    sender: true
+    # 服务接收者, 解析数据文件方: 打开(true)、关闭(flase)
+    receiver: false

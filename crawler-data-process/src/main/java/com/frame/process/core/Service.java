@@ -46,6 +46,13 @@ public interface Service<T> {
     void update(T model);
     
     /**
+     * 批量更新
+     * @param models
+     * @param flag
+     */
+    void updateBatch(List<T> models, Integer flag);
+    
+    /**
      * 通过ID查找
      * @param id
      * @return
@@ -92,7 +99,8 @@ public interface Service<T> {
      * 获取限定数量数据
      * @param startPos 起始位
      * @param limit 限定数目
+     * @param flag 已经标志
      * @return
      */
-    List<T> findDatasByLimit(Integer startPos, Integer limit);
+    List<T> findDatasByLimit(Integer startPos, Integer limit, Integer flag);
 }

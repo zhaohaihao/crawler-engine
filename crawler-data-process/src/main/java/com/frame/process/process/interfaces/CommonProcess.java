@@ -9,14 +9,14 @@ import javax.annotation.PostConstruct;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 import com.frame.process.annotation.ExportType;
 import com.frame.process.core.Service;
-import com.frame.process.utils.PackageUtils;
+import com.frame.process.service.ExportConfigService;
 import com.frame.process.utils.UUIDUtils;
 /**
  * 公共核心处理类
@@ -48,6 +48,15 @@ public class CommonProcess {
 	// 文件加解密密码
 	@Value("${file.secretKey}")
 	protected String secretKey;
+	
+	@Value("${commonProcess.dataLimit}")
+	protected int dataLimit;
+	
+	@Value("${commonProcess.zipMax}")
+	protected int zipMax;
+	
+	@Autowired
+	private ExportConfigService exportConfigService;
 	
 	// 初始类别表 <导出Excel表别名, 实体类>
 	protected static Map<String, Class<?>> initialCategoriesMap = new HashMap<>();
@@ -109,8 +118,11 @@ public class CommonProcess {
 		if (initialCategoriesMap.isEmpty()) {
 			try {
 				// 获取指定包下的实体类
-				List<Class<?>> clazzList = PackageUtils.getClass(modelPackage, true);
-				for (Class<?> clazz : clazzList) {
+				/** 说明：这种方法废弃, 在打成jar包的时候无法获取 **/
+//				List<Class<?>> clazzList = PackageUtils.getClass(modelPackage, true);
+				List<String> findFullNames = exportConfigService.findFullNames();
+				for (String fullName : findFullNames) {
+					Class<?> clazz = Class.forName(fullName);
 					// 类上是否含指定注解
 					boolean hasAnno = clazz.isAnnotationPresent(ExportType.class);
 					if (hasAnno) {

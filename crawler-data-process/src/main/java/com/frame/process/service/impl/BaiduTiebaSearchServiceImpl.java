@@ -23,8 +23,13 @@ public class BaiduTiebaSearchServiceImpl extends AbstractService<BaiduTiebaSearc
 	private BaiduTiebaSearchMapper baiduTiebaSearchMapper;
 
 	@Override
-	public List<BaiduTiebaSearch> findDatasByLimit(Integer startPos, Integer limit) {
-		return baiduTiebaSearchMapper.selectBaiduTiebaSearchByLimit(startPos, limit);
+	public List<BaiduTiebaSearch> findDatasByLimit(Integer startPos, Integer limit, Integer flag) {
+		return baiduTiebaSearchMapper.selectBaiduTiebaSearchByLimit(startPos, limit, flag);
+	}
+
+	@Override
+	public void updateBatch(List<BaiduTiebaSearch> models, Integer flag) {
+		baiduTiebaSearchMapper.updateBatch(models, flag);
 	}
 	
 }

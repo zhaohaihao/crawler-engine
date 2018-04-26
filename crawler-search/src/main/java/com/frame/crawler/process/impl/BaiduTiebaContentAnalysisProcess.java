@@ -104,6 +104,7 @@ public class BaiduTiebaContentAnalysisProcess extends AbstractAnalysisProcess {
 				// 获取回帖信息
 				childContentElements = contentElement.getElementsByClass("d_post_content j_d_post_content ");
 				replyContent = childContentElements.text();
+				replyContent = removeNonBmpUnicode(replyContent);
 				
 				// 获取回帖时间
 				Elements postTailWraps = contentElement.getElementsByClass("post-tail-wrap");

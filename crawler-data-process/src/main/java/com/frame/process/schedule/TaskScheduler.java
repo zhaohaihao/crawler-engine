@@ -1,6 +1,5 @@
 package com.frame.process.schedule;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,45 +34,56 @@ public class TaskScheduler {
 	@Value("${commonProcess.zipLocation}")
 	private String zipLocation;
 	
+	@Value("${server.receiver}")
+	private boolean receiver;
+	
+	@Value("${server.sender}")
+	private boolean sender;
+	
 	@Autowired
 	private ExcelProcess excelProcess;
 	
 	/**
-	 * 数据转文件定时调度器
+	 * 发送方执行
+	 * 数据转文件定时调度器(每2分钟执行一次)
 	 */
+//	@Scheduled(cron = "0 0/2 * * * ?")
 	@Scheduled(cron = "0/20 * * * * ?")
 	public void datas2FilesScheduler() {
-		// 获取当前扫描中文件
-//		List<String> childFilePaths = new ArrayList<>();
-//		FileUtils.getAllFilePath(fileLocation, childFilePaths);
-		//
-		List<String> typeNames = CommonProcess.getInitialCategoriesKeys();
-		excelProcess.datasToFilesConverterThreadOption(typeNames);
+		if (sender) {
+			//
+			List<String> typeNames = CommonProcess.getInitialCategoriesKeys();
+			excelProcess.datasToFilesConverterThreadOption(typeNames);
+		}
 	}
 	
 	/**
-	 * 文件转数据定时调度器
+	 * 接收方执行
+	 * 文件转数据定时调度器(每1分钟执行一次)
 	 */
-	@Scheduled(cron = "0/30 * * * * ?")
+//	@Scheduled(cron = "0 0/1 * * * ?")
+	@Scheduled(cron = "0/20 * * * * ?")
 	public void files2DatasScheduler() {
-		// 获取当前扫描中文件
-		List<String> childFilePaths = new ArrayList<>();
-		FileUtils.getAllFilePath(zipLocation, childFilePaths);
-		//
-		List<String> childZipFilePaths = new ArrayList<>();
-		for (String childFilePath : childFilePaths) {
-			if(childFilePath.endsWith(GobalConstant.FileType.ZIP)) {
-				childZipFilePaths.add(childFilePath);
+		if (receiver) {
+			// 获取当前扫描中文件
+			List<String> childFilePaths = new ArrayList<>();
+			FileUtils.getAllFilePath(zipLocation, childFilePaths);
+			//
+			List<String> childZipFilePaths = new ArrayList<>();
+			for (String childFilePath : childFilePaths) {
+				if(childFilePath.endsWith(GobalConstant.FileType.ZIP)) {
+					childZipFilePaths.add(childFilePath);
+				}
 			}
-		}
-		
-		for (String childZipFilePath : childZipFilePaths) {
-			try {
-				excelProcess.filesToDatasConverterThreadOption(childZipFilePath);
-			} catch (Exception e) {
-				// 异常继续执行
-				logger.info("=== 当前文件出现异常不进行处理, 文件名：{} ===", childZipFilePath);
-				continue;
+			
+			for (String childZipFilePath : childZipFilePaths) {
+				try {
+					excelProcess.filesToDatasConverterThreadOption(childZipFilePath);
+				} catch (Exception e) {
+					// 异常继续执行
+					logger.info("=== 当前文件出现异常不进行处理, 文件名：{} ===", childZipFilePath);
+					continue;
+				}
 			}
 		}
 	}

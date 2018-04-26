@@ -67,18 +67,18 @@ public class MyApplicationRunner implements CommandLineRunner {
 		
 //		getKeyWordListFromDB(7);
 		
-		baiduTiebaImageService.downloadImagesToLocal(baiduTiebaImageService.getNotDownloadImagesByLimit(1000));
+//		baiduTiebaImageService.downloadImagesToLocal(baiduTiebaImageService.getNotDownloadImagesByLimit(1000));
 		
-//		SearchKeyword searchKeyword = new SearchKeyword();
-//		searchKeyword.setKeyword("哈哈");
-//		SEARCH_KEYWORDS.add(searchKeyword);
-//		boolean flag = baiduTiebaSearchAnalysisProcess.threadExecuteGrab(SEARCH_KEYWORDS);
+		SearchKeyword searchKeyword = new SearchKeyword();
+		searchKeyword.setKeyword("哈哈");
+		SEARCH_KEYWORDS.add(searchKeyword);
+		boolean flag = baiduTiebaSearchAnalysisProcess.threadExecuteGrab(SEARCH_KEYWORDS);
 		/*if (flag) {
 			// 执行完任务关闭容器
 			myContext.showdown();
 			logger.info(">>> 爬虫爬取网页内容结束!!! >>>");
 		}*/
-//		executeGrab(true, true, true);
+		executeGrab(true, true, true);
 	}
 
 	/**

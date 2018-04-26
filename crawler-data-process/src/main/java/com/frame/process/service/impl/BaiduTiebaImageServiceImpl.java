@@ -24,7 +24,12 @@ public class BaiduTiebaImageServiceImpl extends AbstractService<BaiduTiebaImage>
 	private BaiduTiebaImageMapper baiduTiebaImageMapper;
 
 	@Override
-	public List<BaiduTiebaImage> findDatasByLimit(Integer startPos, Integer limit) {
-		return baiduTiebaImageMapper.selectBaiduTiebaImageByLimit(startPos, limit);
+	public List<BaiduTiebaImage> findDatasByLimit(Integer startPos, Integer limit, Integer flag) {
+		return baiduTiebaImageMapper.selectBaiduTiebaImageByLimit(startPos, limit, flag);
+	}
+
+	@Override
+	public void updateBatch(List<BaiduTiebaImage> models, Integer flag) {
+		baiduTiebaImageMapper.updateBatch(models, flag);
 	}
 }

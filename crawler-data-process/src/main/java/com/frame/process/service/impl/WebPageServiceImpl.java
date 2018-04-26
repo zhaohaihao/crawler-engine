@@ -24,7 +24,12 @@ public class WebPageServiceImpl extends AbstractService<WebPage> implements WebP
 	private WebPageMapper webPageMapper;
 
 	@Override
-	public List<WebPage> findDatasByLimit(Integer startPos, Integer limit) {
-		return webPageMapper.selectWebPageByLimit(startPos, limit);
+	public List<WebPage> findDatasByLimit(Integer startPos, Integer limit, Integer flag) {
+		return webPageMapper.selectWebPageByLimit(startPos, limit, flag);
+	}
+
+	@Override
+	public void updateBatch(List<WebPage> models, Integer flag) {
+		webPageMapper.updateBatch(models, flag);
 	}
 }

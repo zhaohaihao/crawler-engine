@@ -3,8 +3,18 @@
 
 <mapper namespace="com.frame.process.mapper.WebPageMapper">
 	
-	<select id="selectWebPageByLimit" parameterType="java.lang.Integer" resultType="WebPage">
+	<select id="selectWebPageByLimit" resultType="WebPage">
 		SELECT * FROM webpage
+		WHERE flag = #{flag}
 		LIMIT #{startPos}, #{limit}
 	</select>
+	
+	<update id="updateBatch">
+		UPDATE webpage
+		SET flag = #{flag}
+		WHERE id IN
+		<foreach collection="datas" item="data" index="index" separator="," open="(" close=")">
+		 #{data.id}
+		</foreach>
+	</update>
 </mapper>

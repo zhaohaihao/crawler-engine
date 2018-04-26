@@ -99,7 +99,7 @@ public abstract class AbstractProcess extends CommonProcess implements ProcessIn
 	
 	@Override
 	public void notifyPackFile(String filePath) {
-		FileSubscriber.getInstance().countFileNum(this, filePath);
+		FileSubscriber.getInstance().countFileNum(this, filePath, zipMax);
 	}
 	
 	@Override
@@ -115,7 +115,7 @@ public abstract class AbstractProcess extends CommonProcess implements ProcessIn
 		String[] filePathsArray = new String[size];
 		for (int i = 0; i < size; i++) {
 			filePathsArray[i] = filePaths.get(i);
-			logger.info("=== 当前执行打包操作的filePath: " + filePathsArray[i] + " ===");
+			System.out.println("=== 当前执行打包操作的filePath: " + filePathsArray[i] + " ===");
 		}
         // 压缩文件
      	String zipFilePath = ZipUtils.compress(zipLocation, filePathsArray);
@@ -148,12 +148,17 @@ public abstract class AbstractProcess extends CommonProcess implements ProcessIn
 		// 获取对应的实体类
 		Class pojoClazz = initialCategoriesMap.get(tableType);
 		// 获取的数据
-		List<?> findDatas = serviceBean.findDatasByLimit(0, GobalConstant.QueryCondition.QUERY_LIMIT);
+		List<?> findDatas = serviceBean.findDatasByLimit(0, dataLimit, GobalConstant.ReadFlag.NOT_READ);
 
 		// 数据信息
 		Field[] clazzFields = pojoClazz.getDeclaredFields();
 		String[] nameArray = saveHeaders(datas, clazzFields);
 		saveBodys(datas, findDatas, clazzFields, nameArray);
+		
+		if (!CollectionUtils.isEmpty(findDatas)) {
+			// 更新数据标识
+			serviceBean.updateBatch(findDatas, GobalConstant.ReadFlag.READ);
+		}
 		// 只有表头无具体数据时候返回 null
 		return datas.size() == nameArray.length ? null : datas;
 	}

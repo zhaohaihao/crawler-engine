@@ -17,7 +17,8 @@ public interface WebPageMapper extends MyMapper<WebPage> {
 	 * 筛选指定条数页面内容
 	 * @param startPos 起始位
 	 * @param limit 限定数目
+	 * @param flag 已读标志
 	 * @return
 	 */
-	List<WebPage> selectWebPageByLimit(@Param("startPos") Integer startPos, @Param("limit") Integer limit);
+	List<WebPage> selectWebPageByLimit(@Param("startPos") Integer startPos, @Param("limit") Integer limit, @Param("flag") Integer flag);
 }
